@@ -1,8 +1,8 @@
-from flask import Response, request
-from datetime import date
+from flask import Response
 import dbhelpers
 import string
 import random
+from datetime import datetime
 # create salt for pw
 
 
@@ -30,7 +30,7 @@ def check_user_id(request):
 
 def get_user_info(user_id):
     user_info = dbhelpers.run_select_statement(
-        "SELECT u.name, u.image_url FROM users u WHERE user_id = ?", [user_id])
+        "SELECT u.name, u.image_url FROM users u WHERE u.id = ?", [user_id])
     return user_info
 
 
@@ -47,6 +47,22 @@ def select_location_info(city_name, country_name):
     location_info = dbhelpers.run_select_statement(
         "SELECT l.city_name, l.country_name, l.longitude, l.latitude, l.id FROM locations l WHERE l.city_name = ? AND l.country_name = ?", [city_name, country_name])
     return location_info
+
+
+def date_time_validity(date_time):
+    if date_time != "":
+        date_time = datetime.fromisoformat(date_time)
+        # this converts the bday input string to a number so can do math
+        if date_time <= datetime.now():
+            result = Response("Invalid date input",
+                              mimetype='text/plain', status=400)
+        else:
+            result = date_time
+            print(date_time)
+    else:
+        result = Response("Invalid date input",
+                          mimetype='text/plain', status=400)
+    return result
 
 
 # def select_follows(user_id, id_one, id_two, id_three):

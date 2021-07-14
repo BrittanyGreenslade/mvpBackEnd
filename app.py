@@ -6,6 +6,7 @@ import users
 import login
 import events
 import usersEvents
+import location
 app = Flask(__name__)
 
 # user calls
@@ -65,8 +66,8 @@ def delete_event():
 
 
 @app.get("/api/users-events")
-def get_users_events():
-    return usersEvents.get_events(request)
+def get_users_attends():
+    return usersEvents.attends(request)
 
 
 @app.post("/api/users-events")
@@ -74,14 +75,19 @@ def attend_event():
     return usersEvents.attend_event(request)
 
 
-@app.patch("/api/users-events")
+@app.delete("/api/users-events")
 def unattend_event():
     return usersEvents.unattend_event(request)
 
 
-@app.delete("/api/events-users")
-def get_events_users():
-    return usersEvents.get_events_users(request)
+@app.get("/api/events-users")
+def get_events_attendees():
+    return usersEvents.get_events_attendees(request)
+
+
+@app.get("/api/location")
+def get_location_options():
+    return location.get_location_options(request)
 
 
 if(len(sys.argv) > 1):

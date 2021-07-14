@@ -133,7 +133,8 @@ def update_user(request):
     except:
         traceback.print_exc()
         return Response("Please try again", mimetype='text/plain', status=400)
-    if email == None and name == None and password == None and bio == None and image_url == None and linked_in_url == None and city_name == None:
+        # update when change city info
+    if email == None and name == None and password == None and bio == None and image_url == None and linked_in_url == None and city_name == None and country_name == None:
         return Response("Please update at least one field", mimetype='text/plain', status=400)
     else:
         params = []
@@ -157,7 +158,7 @@ def update_user(request):
             sql += " u.image_url = ?,"
             params.append(image_url)
         if salt != None and salt != "":
-            sql += "u.salt = ?,"
+            sql += " u.salt = ?,"
             params.append(salt)
             # might have to add for if country name changes?
         if city_name != None and city_name != "":
@@ -167,7 +168,7 @@ def update_user(request):
                 return location_info
             elif location_info != None and len(location_info) == 1:
                 location_id = location_info[0][4]
-                sql += "u.location_id = ?,"
+                sql += " u.location_id = ?,"
                 params.append(location_id)
             else:
                 return Response("Error fetching data", mimetype='text/plain', status=500)
