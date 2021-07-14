@@ -66,8 +66,8 @@ def delete_event():
 
 
 @app.get("/api/users-events")
-def get_users_attends():
-    return usersEvents.attends(request)
+def get_users_events():
+    return usersEvents.get_users_events(request)
 
 
 @app.post("/api/users-events")
@@ -88,6 +88,11 @@ def get_events_attendees():
 @app.get("/api/location")
 def get_location_options():
     return location.get_location_options(request)
+
+
+@app.get("/api/distance")
+def distance_user_event():
+    return location.distance_user_event(request)
 
 
 if(len(sys.argv) > 1):
