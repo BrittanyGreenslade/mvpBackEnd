@@ -25,6 +25,20 @@ def check_user_id(request):
     if user_id != None:
         user_id = int(user_id)
     return user_id
+# check if event_id exists(get/args only)
+
+
+def get_user_info(user_id):
+    user_info = dbhelpers.run_select_statement(
+        "SELECT u.name, u.image_url FROM users u WHERE user_id = ?", [user_id])
+    return user_info
+
+
+def check_event_id(request):
+    event_id = request.args.get('eventId')
+    if event_id != None:
+        event_id = int(event_id)
+    return event_id
 
 # get location info
 

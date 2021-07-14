@@ -17,10 +17,10 @@ def get_users(request):
         return Response("Something went wrong, please try again", mimetype='text/plain', status=422)
     if user_id != None and user_id != "":
         users = dbhelpers.run_select_statement(
-            "SELECT u.email, u.name, u.bio, u.join_date, u.image_url, u.id, u.linked_in_url, u.location_id FROM users u WHERE u.id = ?", [user_id, ])
+            "SELECT u.email, u.name, u.bio, u.join_date, u.image_url, u.id, u.linked_in_url, u.location_id, l.city_name, l.country_name FROM users u INNER JOIN locations l ON l.id = u.location_id WHERE u.id = ?", [user_id, ])
     else:
         users = dbhelpers.run_select_statement(
-            "SELECT u.email, u.name, u.bio, u.join_date, u.image_url, u.id, u.linked_in_url, u.location_id FROM users u", [])
+            "SELECT u.email, u.name, u.bio, u.join_date, u.image_url, u.id, u.linked_in_url, u.location_id, l.city_name, l.country_name FROM users u INNER JOIN locations l ON l.id = u.location_id", [])
     if type(users) == Response:
         return users
     elif users == None or users == "":
@@ -31,7 +31,7 @@ def get_users(request):
         user_dictionaries = []
         for user in users:
             user_dictionaries.append(
-                {"userId": user[5], "email": user[0], "name": user[1], "bio": user[2], "joinDate": user[3], "imageUrl": user[4], "linkedInUrl": user[6], "locationId": user[7]})
+                {"userId": user[5], "email": user[0], "name": user[1], "bio": user[2], "joinDate": user[3], "imageUrl": user[4], "linkedInUrl": user[6], "locationId": user[7], "cityName": user[8], "countryName": user[9]})
         user_json = json.dumps(user_dictionaries, default=str)
         return Response(user_json, mimetype='application/json', status=200)
 
@@ -97,7 +97,7 @@ def create_user(request):
                 return join_date_list
             elif join_date_list != None:
                 new_user_dictionary = {
-                    "userId": last_row_id, "email": email, "name": name, "bio": bio, "joinDate": join_date_list[0][0], "imageUrl": image_url, "loginToken": login_token, "locationId": location_info[0][4], "linkedInUrl": linked_in_url}
+                    "userId": last_row_id, "email": email, "name": name, "bio": bio, "joinDate": join_date_list[0][0], "imageUrl": image_url, "loginToken": login_token, "locationId": location_info[0][4], "cityName": city_name, "countryName": country_name, "linkedInUrl": linked_in_url}
                 new_user_json = json.dumps(new_user_dictionary, default=str)
                 return Response(new_user_json, mimetype='application/json', status=201)
             else:
@@ -105,7 +105,7 @@ def create_user(request):
         else:
             return Response("Error logging user in", mimetype='text/plain', status=500)
     else:
-        return Response("User cannot be created. Please try again", mimetype='text/plain', status=00)
+        return Response("User cannot be created. Please try again", mimetype='text/plain', status=500)
 
 
 def update_user(request):
@@ -159,6 +159,7 @@ def update_user(request):
         if salt != None and salt != "":
             sql += "u.salt = ?,"
             params.append(salt)
+            # might have to add for if country name changes?
         if city_name != None and city_name != "":
             location_info = helpers.select_location_info(
                 city_name, country_name)
@@ -166,7 +167,7 @@ def update_user(request):
                 return location_info
             elif location_info != None and len(location_info) == 1:
                 location_id = location_info[0][4]
-                sql += "u.location_ud = ?,"
+                sql += "u.location_id = ?,"
                 params.append(location_id)
             else:
                 return Response("Error fetching data", mimetype='text/plain', status=500)
@@ -179,12 +180,12 @@ def update_user(request):
         # rows updated should only ever be 1
         elif rows == 1:
             updated_user = dbhelpers.run_select_statement(
-                "SELECT u.email, u.name, u.bio, u.join_date, u.image_url, u.id, u.linked_in_url, u.location_id FROM users u INNER JOIN user_session us ON u.id = us.user_id WHERE login_token = ?", [login_token, ])
+                "SELECT u.email, u.name, u.bio, u.join_date, u.image_url, u.id, u.linked_in_url, u.location_id, l.city_name, l.country_name FROM users u INNER JOIN user_session us ON u.id = us.user_id INNER JOIN locations l on l.id = u.location_id WHERE login_token = ?", [login_token, ])
             if type(updated_user) == Response:
                 return updated_user
             elif updated_user != None and len(updated_user) == 1:
                 updated_user_dictionary = {
-                    "userId": updated_user[0][5], "email": updated_user[0][0], "name": updated_user[0][1], "bio": updated_user[0][2], "joinDate": updated_user[0][3], "imageUrl": updated_user[0][4], "linkedInUrl": updated_user[0][6], "locationId": updated_user[0][7]}
+                    "userId": updated_user[0][5], "email": updated_user[0][0], "name": updated_user[0][1], "bio": updated_user[0][2], "joinDate": updated_user[0][3], "imageUrl": updated_user[0][4], "linkedInUrl": updated_user[0][6], "locationId": updated_user[0][7], "cityName": updated_user[0][8], "countryName": updated_user[0][9]}
                 updated_user_json = json.dumps(
                     updated_user_dictionary, default=str)
                 return Response(updated_user_json, mimetype='application/json', status=201)
