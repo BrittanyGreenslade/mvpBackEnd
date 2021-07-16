@@ -4,6 +4,7 @@ import dbhelpers
 import traceback
 import json
 import secrets
+import helpers
 
 
 def user_login(request):
@@ -32,10 +33,16 @@ def user_login(request):
         if type(login_id) == Response:
             return login_id
         elif login_id != None:
-            login_dictionary = {"loginToken": login_token,
-                                "userId": user[0][0], "email": user[0][3], "name": user[0][1], "bio": user[0][2], "joinDate": user[0][4], "imageUrl": user[0][5], "linkedInUrl": user[0][6], "locationId": user[0][7]}
-            login_json = json.dumps(login_dictionary, default=str)
-            return Response(login_json, mimetype='application/json', status=201)
+            location_info = helpers.select_location_info_id(user[0][7])
+            if type(location_info) == Response:
+                return location_info
+            elif location_info == None or len(location_info) != 1:
+                return Response("Location not found", mimetype='text/plain', status=400)
+            else:
+                login_dictionary = {"loginToken": login_token,
+                                    "userId": user[0][0], "email": user[0][3], "name": user[0][1], "bio": user[0][2], "joinDate": user[0][4], "imageUrl": user[0][5], "linkedInUrl": user[0][6], "locationId": user[0][7], "cityName": location_info[0][0], "countryName": location_info[0][1]}
+                login_json = json.dumps(login_dictionary, default=str)
+                return Response(login_json, mimetype='application/json', status=201)
         else:
             return Response("Invalid login - please try again", mimetype='text/plain', status=400)
     else:

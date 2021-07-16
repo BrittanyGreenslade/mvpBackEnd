@@ -49,6 +49,12 @@ def select_location_info(city_name, country_name):
     return location_info
 
 
+def select_location_info_id(location_id):
+    location_info = dbhelpers.run_select_statement(
+        "SELECT l.city_name, l.country_name, l.longitude, l.latitude, l.id FROM locations l WHERE l.id = ?", [location_id, ])
+    return location_info
+
+
 def date_time_validity(date_time):
     if date_time != "":
         date_time = datetime.fromisoformat(date_time)
