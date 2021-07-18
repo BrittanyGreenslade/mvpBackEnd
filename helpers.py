@@ -64,7 +64,6 @@ def date_time_validity(date_time):
                               mimetype='text/plain', status=400)
         else:
             result = date_time
-            print(date_time)
     else:
         result = Response("Invalid date input",
                           mimetype='text/plain', status=400)
