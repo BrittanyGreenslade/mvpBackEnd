@@ -126,7 +126,7 @@ def update_event(request):
         return Response("Please update at least one field", mimetype='text/plain', status=400)
     else:
         params = []
-        sql = "UPDATE events e INNER JOIN user_session us on e.host_id = us.user_id SET"
+        sql = "UPDATE events e INNER JOIN user_session us ON e.host_id = us.user_id SET"
         if name != None and name != "":
             sql += " e.name = ?,"
             params.append(name)
@@ -154,7 +154,7 @@ def update_event(request):
         sql = sql[:-1]
         params.append(login_token)
         params.append(event_id)
-        sql += " WHERE login_token = ? AND e.id = ?"
+        sql += " WHERE us.login_token = ? AND e.id = ?"
         rows = dbhelpers.run_update_statement(sql, params)
         if type(rows) == Response:
             return rows
