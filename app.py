@@ -65,6 +65,11 @@ def delete_event():
     return events.delete_event(request)
 
 
+@app.get("/api/events/location")
+def get_events_at_location():
+    return events.get_events_at_location(request)
+
+
 @app.get("/api/users-events")
 def get_users_events():
     return usersEvents.get_users_events(request)
@@ -91,8 +96,11 @@ def get_location_options():
 
 
 @app.get("/api/distance")
-def distance_user_event():
-    return location.distance_user_event(request)
+def distance():
+    return location.distance(request)
+# @app.get("/api/distance")
+# def distance_user_event():
+#     return location.distance_user_event(request)
 
 
 if(len(sys.argv) > 1):

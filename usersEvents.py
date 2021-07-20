@@ -56,12 +56,13 @@ def attend_event(request):
             # new_attend = helpers.select_follows(
             #     last_row_id, 'follow_id', 'follow_id', 'id')
             new_attend = dbhelpers.run_select_statement(
-                "SELECT u.name, u.image_url, ue.event_id FROM users_events ue INNER JOIN users u ON u.id = ue.user_id WHERE ue.id = ?", [last_row_id])
+                "SELECT e.id, e.name, e.date_time, e.image_url, e.description, e.host_id, u.name, u.image_url, l.city_name, l.country_name FROM users_events ue INNER JOIN users u ON u.id = ue.user_id INNER JOIN events e ON e.id = ue.event_id INNER JOIN locations l on l.id = e.location_id WHERE ue.id = ?", [last_row_id])
             if type(new_attend) == Response:
                 return new_attend
             if new_attend != None and len(new_attend) == 1:
                 attend_dictionary = {
-                    "name": new_attend[0][0], "userImageUrl": new_attend[0][1], "eventId": new_attend[0][2]}
+
+                    "eventId": new_attend[0][0], "eventName": new_attend[0][1], "dateTime": new_attend[0][2], "eventImageUrl": new_attend[0][3], "description": new_attend[0][4], "hostId": new_attend[0][5], "hostName": new_attend[0][6], "hostImageUrl": new_attend[0][7], "cityName": new_attend[0][8], "countryName": new_attend[0][9]}
                 attend_json = json.dumps(attend_dictionary, default=str)
                 return Response(attend_json, mimetype='application/json', status=201)
         else:

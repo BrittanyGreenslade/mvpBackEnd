@@ -110,12 +110,9 @@ def update_event(request):
         image_url = request.json.get('eventImageUrl')
         # fix when udpating location stuff done
         city_name = request.json.get('cityName')
-        if city_name != None:
-            country_name = request.json['countryName']
-        else:
-            country_name = request.json.get('countryName')
+        country_name = request.json.get('countryName')
         login_token = request.json['loginToken']
-        event_id = request.json['eventId']
+        event_id = int(request.json['eventId'])
     except KeyError:
         return Response("Please enter the required data", mimetype='text/plain', status=401)
     except:
@@ -126,6 +123,7 @@ def update_event(request):
         return Response("Please update at least one field", mimetype='text/plain', status=400)
     else:
         params = []
+
         sql = "UPDATE events e INNER JOIN user_session us ON e.host_id = us.user_id SET"
         if name != None and name != "":
             sql += " e.name = ?,"
@@ -140,21 +138,21 @@ def update_event(request):
             sql += " e.image_url = ?,"
             params.append(image_url)
         # fix when udpating location stuff done
-        if city_name != None and city_name != "":
+        if city_name != None and city_name != "" and country_name != None and country_name != "":
             location_info = helpers.select_location_info(
                 city_name, country_name)
             if type(location_info) == Response:
                 return location_info
             elif location_info != None and len(location_info) == 1:
                 location_id = location_info[0][4]
-                sql += " u.location_id = ?,"
+                sql += " e.location_id = ?,"
                 params.append(location_id)
             else:
                 return Response("Error fetching data", mimetype='text/plain', status=500)
         sql = sql[:-1]
+        sql += " WHERE us.login_token = ? AND e.id = ?"
         params.append(login_token)
         params.append(event_id)
-        sql += " WHERE us.login_token = ? AND e.id = ?"
         rows = dbhelpers.run_update_statement(sql, params)
         if type(rows) == Response:
             return rows
@@ -179,7 +177,7 @@ def update_event(request):
 def delete_event(request):
     try:
         login_token = request.json['loginToken']
-        event_id = request.json['eventId']
+        event_id = int(request.json['eventId'])
     except KeyError:
         return Response("Please enter the required data", mimetype='application/json', status=401)
     except:
@@ -193,3 +191,31 @@ def delete_event(request):
         return Response("Event deleted!", mimetype='text/plain', status=200)
     else:
         return Response("Delete error", mimetype='text/plain', status=500)
+
+# need to find events in user current city
+
+
+def get_events_at_location(request):
+    try:
+        location_id = int(request.args['locationId'])
+    except KeyError:
+        return Response("Please enter the required data", mimetype='application/json', status=401)
+    except ValueError:
+        return Response("Invalid location ID", mimetype='text/plain', status=422)
+    except:
+        traceback.print_exc()
+        return Response("Something went wrong, please try again", mimetype='text/plain', status=422)
+    if location_id != None and location_id != "":
+        events = dbhelpers.run_select_statement(
+            "SELECT e.id, e.name, e.date_time, e.image_url, e.description, l.city_name, l.country_name, u.name, u.image_url, u.id, l.id FROM events e INNER JOIN locations l ON l.id = e.location_id INNER JOIN users u ON e.host_id = u.id WHERE l.id = ?", [location_id, ])
+    if type(events) == Response:
+        return events
+    elif events == None or events == "":
+        return Response("No event data available", mimetype='text/plain', status=400)
+    else:
+        event_dictionaries = []
+        for event in events:
+            event_dictionaries.append(
+                {"eventId": event[0], "eventName": event[1], "dateTime": event[2], "eventImageUrl": event[3], "description": event[4], "cityName": event[5], "countryName": event[6], "locationId": event[10], "hostName": event[7], "hostImageUrl": event[8], "hostId": event[9]})
+        event_json = json.dumps(event_dictionaries, default=str)
+        return Response(event_json, mimetype='application/json', status=200)
