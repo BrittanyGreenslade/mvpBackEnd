@@ -40,9 +40,6 @@ def create_user(request):
     try:
         name = request.json['name']
         password = request.json['password']
-        salt = helpers.createSalt()
-        password = salt+password
-        password = hashlib.sha512(password.encode()).hexdigest()
         email = request.json['email']
         bio = request.json.get('bio')
         image_url = request.json.get('imageUrl')
@@ -54,6 +51,11 @@ def create_user(request):
     except:
         traceback.print_exc()
         return Response("Sorry, something went wrong", mimetype='text/plain', status=400)
+    if name == "" or len(password) < 8 or email == "":
+        return Response("Invalid user info", mimetype='text/plain', status=400)
+    salt = helpers.createSalt()
+    password = salt+password
+    password = hashlib.sha512(password.encode()).hexdigest()
     location_info = helpers.select_location_info(city_name, country_name)
     if type(location_info) == Response:
         return location_info
@@ -61,51 +63,52 @@ def create_user(request):
         return Response("Location not found", mimetype='text/plain', status=400)
     else:
         location_id = location_info[0][4]
-    sql = "INSERT INTO users (name, password, salt, email, location_id"
-    params = [name, password, salt, email, location_id]
-    if (image_url == None or image_url == "") and (bio == None or bio == "") and (linked_in_url == None or linked_in_url == ""):
-        sql += ") VALUES (?, ?, ?, ?, ?)"
-    else:
-        if image_url != None and image_url != "":
-            sql += ", image_url"
-            params.append(image_url)
-        if bio != None and bio != "":
-            sql += ", bio"
-            params.append(bio)
-        if linked_in_url != None and linked_in_url != "":
-            sql += ", linked_in_url"
-            params.append(linked_in_url)
-        if len(params) == 6:
-            sql += ") VALUES (?, ?, ?, ?, ?, ?)"
-        elif len(params) == 7:
-            sql += ") VALUES (?, ?, ?, ?, ?, ?, ?)"
-        elif len(params) == 8:
-            sql += ") VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-    last_row_id = dbhelpers.run_insert_statement(sql, params)
-    if type(last_row_id) == Response:
-        return last_row_id
-    elif last_row_id != None:
-        login_token = secrets.token_urlsafe(60)
-        session_id = dbhelpers.run_insert_statement(
-            "INSERT INTO user_session(login_token, user_id) VALUES(?, ?)", [login_token, last_row_id])
-        if type(session_id) == Response:
-            return session_id
-        elif session_id != None:
-            join_date_list = dbhelpers.run_select_statement(
-                "SELECT u.join_date FROM users u WHERE u.id = ?", [last_row_id])
-            if type(join_date_list) == Response:
-                return join_date_list
-            elif join_date_list != None:
-                new_user_dictionary = {
-                    "userId": last_row_id, "email": email, "name": name, "bio": bio, "joinDate": join_date_list[0][0], "imageUrl": image_url, "loginToken": login_token, "locationId": location_info[0][4], "cityName": city_name, "countryName": country_name, "linkedInUrl": linked_in_url}
-                new_user_json = json.dumps(new_user_dictionary, default=str)
-                return Response(new_user_json, mimetype='application/json', status=201)
-            else:
-                return Response("Error fetching data", mimetype='text/plain', status=500)
+        sql = "INSERT INTO users (name, password, salt, email, location_id"
+        params = [name, password, salt, email, location_id]
+        if (image_url == None or image_url == "") and (bio == None or bio == "") and (linked_in_url == None or linked_in_url == ""):
+            sql += ") VALUES (?, ?, ?, ?, ?)"
         else:
-            return Response("Error logging user in", mimetype='text/plain', status=500)
-    else:
-        return Response("User cannot be created. Please try again", mimetype='text/plain', status=500)
+            if image_url != None and image_url != "":
+                sql += ", image_url"
+                params.append(image_url)
+            if bio != None and bio != "":
+                sql += ", bio"
+                params.append(bio)
+            if linked_in_url != None and linked_in_url != "":
+                sql += ", linked_in_url"
+                params.append(linked_in_url)
+            if len(params) == 6:
+                sql += ") VALUES (?, ?, ?, ?, ?, ?)"
+            elif len(params) == 7:
+                sql += ") VALUES (?, ?, ?, ?, ?, ?, ?)"
+            elif len(params) == 8:
+                sql += ") VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+        last_row_id = dbhelpers.run_insert_statement(sql, params)
+        if type(last_row_id) == Response:
+            return last_row_id
+        elif last_row_id != None:
+            login_token = secrets.token_urlsafe(60)
+            session_id = dbhelpers.run_insert_statement(
+                "INSERT INTO user_session(login_token, user_id) VALUES(?, ?)", [login_token, last_row_id])
+            if type(session_id) == Response:
+                return session_id
+            elif session_id != None:
+                auto_gen_info = dbhelpers.run_select_statement(
+                    "SELECT u.join_date, u.image_url FROM users u WHERE u.id = ?", [last_row_id])
+                if type(auto_gen_info) == Response:
+                    return auto_gen_info
+                elif auto_gen_info != None:
+                    new_user_dictionary = {
+                        "userId": last_row_id, "email": email, "name": name, "bio": bio, "joinDate": auto_gen_info[0][0], "imageUrl": auto_gen_info[0][1], "loginToken": login_token, "locationId": location_info[0][4], "cityName": city_name, "countryName": country_name, "linkedInUrl": linked_in_url}
+                    new_user_json = json.dumps(
+                        new_user_dictionary, default=str)
+                    return Response(new_user_json, mimetype='application/json', status=201)
+                else:
+                    return Response("Error fetching data", mimetype='text/plain', status=500)
+            else:
+                return Response("Error logging user in", mimetype='text/plain', status=500)
+        else:
+            return Response("User cannot be created. Please try again", mimetype='text/plain', status=500)
 
 
 def update_user(request):

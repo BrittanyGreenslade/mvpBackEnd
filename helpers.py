@@ -17,6 +17,13 @@ def get_user_id(login_token):
     user_id = dbhelpers.run_select_statement(
         "SELECT user_id FROM user_session WHERE login_token = ?", [login_token])
     return user_id
+# this works b/c email is a UK
+
+
+# def get_user_id(email):
+#     user_id = dbhelpers.run_select_statement(
+#         "SELECT user_id FROM user_session WHERE login_token = ?", [email])
+#     return user_id
 
 # check if user_id exists (get/args only)
 
@@ -54,6 +61,12 @@ def select_location_info_id(location_id):
     location_info = dbhelpers.run_select_statement(
         "SELECT l.city_name, l.country_name, l.longitude, l.latitude, l.id FROM locations l WHERE l.id = ?", [location_id, ])
     return location_info
+
+
+# def get_img(user_id):
+#     image_url = dbhelpers.run_select_statement(
+#         "SELECT u.image_url FROM users u WHERE u.id = ?", [user_id, ])
+#     return image_url
 
 
 def date_time_validity(date_time):

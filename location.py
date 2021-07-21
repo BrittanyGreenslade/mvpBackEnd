@@ -19,7 +19,7 @@ def get_location_options(request):
         traceback.print_exc()
         return Response("Sorry, something went wrong", mimetype='text/plain', status=400)
     location_options = dbhelpers.run_select_statement(
-        "SELECT l.city_name, l.country_name, l.id FROM locations l WHERE l.city_name LIKE ?", [location_name_start, ])
+        "SELECT l.city_name, l.country_name, l.id FROM locations l WHERE l.city_name LIKE ? LIMIT 10", [location_name_start, ])
     if type(location_options) == Response:
         return location_options
     elif location_options != None and len(location_options) >= 1:
