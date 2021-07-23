@@ -26,7 +26,7 @@ def get_users_events(request):
         events_dictionaries = []
         for event in events:
             events_dictionaries.append({"userId": user_id, "eventId": event[0], "eventName": event[1], "dateTime": event[2], "eventImageUrl": event[3],
-                                        "description": event[4], "hostId": event[5], "hostName": event[6], "hostImageUrl": event[7], "eventCityName": event[8], "eventCountryName": event[9]})
+                                        "description": event[4], "hostId": event[5], "hostName": event[6], "hostImageUrl": event[7], "cityName": event[8], "countryName": event[9]})
         event_json = json.dumps(events_dictionaries, default=str)
         return Response(event_json, mimetype='application/json', status=200)
 

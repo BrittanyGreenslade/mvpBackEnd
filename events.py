@@ -41,6 +41,7 @@ def create_event(request):
         login_token = request.json['loginToken']
         name = request.json['eventName']
         date_time = request.json['dateTime']
+        # checks that datetime is in the future
         date_time = helpers.date_time_validity(date_time)
         if type(date_time) == Response:
             return date_time
