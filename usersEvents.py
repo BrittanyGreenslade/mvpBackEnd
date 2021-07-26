@@ -110,7 +110,8 @@ def get_events_attendees(request):
     else:
         attendees_dictionaries = []
         for attendee in attendees:
-            attendees_dictionaries.append({"eventId": event_id, "attendeeId": attendee[0], "attendeeName": attendee[1], "attendeeImageUrl": attendee[2], "attendeeEmail": attendee[3],
-                                           "attendeeBio": attendee[4]})
+            # user info here is of attendee
+            attendees_dictionaries.append({"eventId": event_id, "userId": attendee[0], "name": attendee[1], "imageUrl": attendee[2], "email": attendee[3],
+                                           "bio": attendee[4]})
         attendee_json = json.dumps(attendees_dictionaries, default=str)
         return Response(attendee_json, mimetype='application/json', status=200)

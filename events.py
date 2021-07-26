@@ -209,14 +209,14 @@ def get_events_at_location(request):
     if location_id != None and location_id != "":
         events = dbhelpers.run_select_statement(
             "SELECT e.id, e.name, e.date_time, e.image_url, e.description, l.city_name, l.country_name, u.name, u.image_url, u.id, l.id FROM events e INNER JOIN locations l ON l.id = e.location_id INNER JOIN users u ON e.host_id = u.id WHERE l.id = ?", [location_id, ])
-    if type(events) == Response:
-        return events
-    elif events == None or events == "":
-        return Response("No event data available", mimetype='text/plain', status=400)
-    else:
-        event_dictionaries = []
-        for event in events:
-            event_dictionaries.append(
-                {"eventId": event[0], "eventName": event[1], "dateTime": event[2], "eventImageUrl": event[3], "description": event[4], "cityName": event[5], "countryName": event[6], "locationId": event[10], "hostName": event[7], "hostImageUrl": event[8], "hostId": event[9]})
-        event_json = json.dumps(event_dictionaries, default=str)
-        return Response(event_json, mimetype='application/json', status=200)
+        if type(events) == Response:
+            return events
+        elif events == None or events == "":
+            return Response("No event data available", mimetype='text/plain', status=400)
+        else:
+            event_dictionaries = []
+            for event in events:
+                event_dictionaries.append(
+                    {"eventId": event[0], "eventName": event[1], "dateTime": event[2], "eventImageUrl": event[3], "description": event[4], "cityName": event[5], "countryName": event[6], "locationId": event[10], "hostName": event[7], "hostImageUrl": event[8], "hostId": event[9]})
+            event_json = json.dumps(event_dictionaries, default=str)
+            return Response(event_json, mimetype='application/json', status=200)

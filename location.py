@@ -63,7 +63,7 @@ def distance_user_event(request):
 # events within X km of user (drop down)
 
 
-def distance(request):
+def citiesWithinDistance(request):
     try:
         city_location_id = int(request.args['cityLocationId'])
         radius = int(request.args['radius'])

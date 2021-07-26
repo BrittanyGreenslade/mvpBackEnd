@@ -96,8 +96,8 @@ def get_location_options():
 
 
 @app.get("/api/distance")
-def distance():
-    return location.distance(request)
+def citiesWithinDistance():
+    return location.citiesWithinDistance(request)
 # @app.get("/api/distance")
 # def distance_user_event():
 #     return location.distance_user_event(request)
