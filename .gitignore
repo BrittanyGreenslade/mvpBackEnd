@@ -5,7 +5,7 @@ __pycache__/
 dbcreds.py
 # C extensions
 *.so
-
+.vscode/
 # Distribution / packaging
 .Python
 build/
