@@ -86,36 +86,27 @@ def date_time_validity(date_time):
 # events within 25 km of user
 
 
-def within_25(city_location_id, user_id):
-    user_city_info = dbhelpers.run_select_statement(
-        "SELECT u.location_id FROM users u WHERE u.id = ?", [user_id, ])
+def within_25(city_location_id):
     city_dictionaries = []
-    if type(user_city_info) == Response:
-        city_dictionaries = user_city_info
-    elif user_city_info == None or user_city_info == "":
+    cities = dbhelpers.run_select_statement(
+        "SELECT l.test_city_id FROM locations_25 l WHERE l.city_id = ?", [city_location_id, ])
+    if type(cities) == Response:
+        city_dictionaries = cities
+    elif cities == None or cities == "":
         city_dictionaries = Response(
             "No city data available", mimetype='text/plain', status=400)
-    elif len(user_city_info) >= 0:
-        cities = dbhelpers.run_select_statement(
-            "SELECT l.test_city_id FROM locations_25 l INNER JOIN users u ON l.city_id = u.location_id WHERE u.location_id = ? AND u.id = ?", [city_location_id, user_id])
-        if type(cities) == Response:
-            city_dictionaries = cities
-        elif cities == None or cities == "":
-            city_dictionaries = Response(
-                "No city data available", mimetype='text/plain', status=400)
-        elif len(cities) >= 0:
-            city_dictionaries.append({"cityId": int(user_city_info[0][0])})
-            for city in cities:
-                city_dictionaries.append(
-                    {"cityId": int(city[0])})
+    elif len(cities) >= 0:
+        for city in cities:
+            city_dictionaries.append(
+                {"cityId": int(city[0])})
     return city_dictionaries
 # events within 50 km of user
 
 
-def within_50(city_location_id, user_id):
-    cities_25 = within_25(city_location_id, user_id)
+def within_50(city_location_id):
+    cities_25 = within_25(city_location_id)
     cities_50 = dbhelpers.run_select_statement(
-        "SELECT l.test_city_id FROM locations_50 l INNER JOIN users u ON l.city_id = u.location_id WHERE u.location_id = ? AND u.id = ?", [city_location_id, user_id])
+        "SELECT l.test_city_id FROM locations_50 l WHERE l.city_id = ?", [city_location_id, ])
     city_dictionaries = []
     for city_25 in cities_25:
         city_dictionaries.append(city_25)
@@ -133,10 +124,10 @@ def within_50(city_location_id, user_id):
 # events within 100 km of user
 
 
-def within_100(city_location_id, user_id):
-    cities_50 = within_50(city_location_id, user_id)
+def within_100(city_location_id):
+    cities_50 = within_50(city_location_id)
     cities_100 = dbhelpers.run_select_statement(
-        "SELECT l.test_city_id FROM locations_100 l INNER JOIN users u ON l.city_id = u.location_id WHERE u.location_id = ? and u.id = ?", [city_location_id, user_id])
+        "SELECT l.test_city_id FROM locations_100 l WHERE l.city_id = ?", [city_location_id, ])
     city_dictionaries = []
     for city_50 in cities_50:
         city_dictionaries.append(city_50)

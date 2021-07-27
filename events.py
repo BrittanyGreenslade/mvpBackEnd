@@ -16,10 +16,10 @@ def get_events(request):
         return Response("Something went wrong, please try again", mimetype='text/plain', status=422)
     if event_id != None and event_id != "":
         events = dbhelpers.run_select_statement(
-            "SELECT e.id, e.name, e.date_time, e.image_url, e.description, l.city_name, l.country_name, u.name, u.image_url, u.id, l.id FROM events e INNER JOIN locations l ON l.id = e.location_id INNER JOIN users u ON e.host_id = u.id WHERE e.id = ?", [event_id, ])
+            "SELECT e.id, e.name, e.date_time, e.image_url, e.description, l.city_name, l.country_name, u.name, u.image_url, u.id, l.id FROM events e INNER JOIN locations l ON l.id = e.location_id INNER JOIN users u ON e.host_id = u.id WHERE e.id = ? ORDER BY e.date_time DESC", [event_id, ])
     else:
         events = dbhelpers.run_select_statement(
-            "SELECT e.id, e.name, e.date_time, e.image_url, e.description, l.city_name, l.country_name, u.name, u.image_url, u.id, l.id FROM events e INNER JOIN locations l ON l.id = e.location_id INNER JOIN users u ON e.host_id = u.id", [])
+            "SELECT e.id, e.name, e.date_time, e.image_url, e.description, l.city_name, l.country_name, u.name, u.image_url, u.id, l.id FROM events e INNER JOIN locations l ON l.id = e.location_id INNER JOIN users u ON e.host_id = u.id ORDER BY e.date_time DESC", [])
     if type(events) == Response:
         return events
     elif events == None or events == "":
