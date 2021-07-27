@@ -108,7 +108,7 @@ else:
 
 if(mode == "production"):
     import bjoern  # type: ignore
-    bjoern.run(app, "0.0.0.0", 5020)
+    bjoern.run(app, "0.0.0.0", 1030)
 elif(mode == "testing"):
     from flask_cors import CORS
     CORS(app)
