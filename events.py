@@ -24,6 +24,7 @@ def get_events(request):
         return events
     elif events == None or events == "":
         return Response("No event data available", mimetype='text/plain', status=400)
+    # for some reason this causes an error when users login and there are no events but even if an id isn't provided
     elif len(events) == 0 and (event_id != None or event_id != ""):
         return Response("No event data available", mimetype='text/plain', status=500)
     else:
