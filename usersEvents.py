@@ -17,7 +17,7 @@ def get_users_events(request):
         return Response("Something went wrong, please try again", mimetype='text/plain', status=422)
     # user_id sent here is the id of the user whose events we're seeing(not host)
     events = dbhelpers.run_select_statement(
-        "SELECT e.id, e.name, e.date_time, e.image_url, e.description, e.host_id, u.name, u.image_url, l.city_name, l.country_name FROM users_events ue INNER JOIN events e ON ue.event_id = e.id INNER JOIN users u ON e.host_id = u.id INNER JOIN locations l on e.location_id = l.id WHERE ue.user_id = ?", [user_id, ])
+        "SELECT e.id, e.name, e.date_time, e.image_url, e.description, e.host_id, u.name, u.image_url, l.city_name, l.country_name FROM users_events ue INNER JOIN events e ON ue.event_id = e.id INNER JOIN users u ON e.host_id = u.id INNER JOIN locations l ON e.location_id = l.id WHERE ue.user_id = ?", [user_id, ])
     if type(events) == Response:
         return events
     if events == None and events == "":
