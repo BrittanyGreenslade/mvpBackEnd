@@ -7,8 +7,10 @@ import traceback
 def get_db_connection():
     # Create our connection to the DB and return it
     try:
-        return mariadb.connect(user=dbcreds.user, password=dbcreds.password,
-                               host=dbcreds.host, port=dbcreds.port, database=dbcreds.database)
+        return mariadb.connect(user=dbcreds.DB_USER, password=dbcreds.DB_PASSWORD,
+                        host=dbcreds.DB_HOST, port=dbcreds.DB_PORT, database=dbcreds.DB_NAME)
+        # return mariadb.connect(user=dbcreds.user, password=dbcreds.password,
+        #                        host=dbcreds.host, port=dbcreds.port, database=dbcreds.database)
     except mariadb.OperationalError:
         return None
     except mariadb.InternalError:
